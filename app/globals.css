@@ -35,8 +35,127 @@
   }
 }
 
+/* Beautiful Green Universe Background */
 html {
   scroll-behavior: smooth;
+  background: radial-gradient(ellipse at center, 
+    #0a0a0a 0%, 
+    #0f172a 30%, 
+    #000000 70%, 
+    #000000 100%);
+  min-height: 100vh;
+  position: relative;
+}
+
+body {
+  background: transparent;
+  position: relative;
+  overflow-x: hidden;
+  z-index: 1;
+}
+
+/* Enhanced Glowing Green Stars */
+html::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, rgba(16, 185, 129, 0.9), transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(16, 185, 129, 0.7), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(16, 185, 129, 1), transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(16, 185, 129, 0.8), transparent),
+    radial-gradient(2px 2px at 160px 30px, rgba(16, 185, 129, 0.9), transparent),
+    radial-gradient(1px 1px at 200px 60px, rgba(16, 185, 129, 0.7), transparent),
+    radial-gradient(2px 2px at 240px 90px, rgba(16, 185, 129, 0.8), transparent),
+    radial-gradient(1px 1px at 280px 20px, rgba(16, 185, 129, 0.9), transparent),
+    radial-gradient(3px 3px at 320px 50px, rgba(16, 185, 129, 0.6), transparent),
+    radial-gradient(1px 1px at 360px 80px, rgba(16, 185, 129, 0.8), transparent),
+    radial-gradient(2px 2px at 400px 30px, rgba(16, 185, 129, 0.7), transparent),
+    radial-gradient(1px 1px at 440px 70px, rgba(16, 185, 129, 0.9), transparent);
+  background-repeat: repeat;
+  background-size: 500px 300px;
+  animation: twinkle 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Comets */
+html::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(45deg, transparent 30%, rgba(16, 185, 129, 0.8) 50%, transparent 70%),
+    linear-gradient(-45deg, transparent 20%, rgba(16, 185, 129, 0.6) 40%, transparent 60%),
+    linear-gradient(135deg, transparent 10%, rgba(16, 185, 129, 0.7) 30%, transparent 50%);
+  background-size: 200px 2px, 150px 1px, 180px 1px;
+  background-position: 
+    0% 20%, 
+    50% 60%, 
+    80% 40%;
+  background-repeat: no-repeat;
+  animation: comet 8s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes comet {
+  0% {
+    background-position: 
+      -200px 20%, 
+      -150px 60%, 
+      -180px 40%;
+  }
+  100% {
+    background-position: 
+      calc(100vw + 200px) 20%, 
+      calc(100vw + 150px) 60%, 
+      calc(100vw + 180px) 40%;
+  }
+}
+
+/* Custom Scroll Progress Bar */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(16, 185, 129, 0.2);
+  z-index: 9999;
+}
+
+.scroll-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #34d399, #10b981);
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+  transition: width 0.1s ease-out;
+  border-radius: 0 2px 2px 0;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 /* Custom scrollbar */
@@ -45,16 +164,53 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: rgba(10, 10, 10, 0.8);
+  backdrop-filter: blur(10px);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333;
+  background: linear-gradient(180deg, #10b981, #34d399);
   border-radius: 5px;
+  border: 2px solid rgba(10, 10, 10, 0.8);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #10b981;
+  background: linear-gradient(180deg, #059669, #10b981);
+}
+
+/* Line clamp utilities */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* Focus styles for better accessibility */
+*:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}
+
+/* Smooth transitions */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
 }
 
 /* Additional responsive styles */
@@ -112,5 +268,141 @@ a svg {
   /* Ensure social links wrap properly on mobile */
   .flex-wrap {
     flex-wrap: wrap;
+  }
+}
+
+/* Loading animations */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(90deg, #374151 0px, #4b5563 40px, #374151 80px);
+  background-size: 200px 100%;
+}
+
+/* Hover effects */
+.hover-lift {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #10b981, #34d399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Animated sections */
+.animated-section {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Pulse animation for important elements */
+.pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 40px rgba(16, 185, 129, 0.6);
+  }
+}
+
+/* Section backgrounds - make them transparent */
+section {
+  background: transparent !important;
+}
+
+.bg-gradient-to-b {
+  background: transparent !important;
+}
+
+/* Card backgrounds */
+.bg-gray-900\/50 {
+  background: rgba(17, 24, 39, 0.3) !important;
+  backdrop-filter: blur(10px);
+}
+
+.bg-gray-800\/50 {
+  background: rgba(31, 41, 55, 0.3) !important;
+  backdrop-filter: blur(10px);
+}
+
+/* Cosmic Nebula */
+.cosmic-nebula {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, rgba(16, 185, 129, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 70% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+  animation: nebula 15s ease-in-out infinite;
+}
+
+/* Floating Cosmic Dust */
+.cosmic-dust {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(1px 1px at 50px 100px, rgba(16, 185, 129, 0.4), transparent),
+    radial-gradient(1px 1px at 150px 200px, rgba(16, 185, 129, 0.3), transparent),
+    radial-gradient(1px 1px at 250px 150px, rgba(16, 185, 129, 0.5), transparent),
+    radial-gradient(1px 1px at 350px 250px, rgba(16, 185, 129, 0.3), transparent),
+    radial-gradient(1px 1px at 450px 100px, rgba(16, 185, 129, 0.4), transparent);
+  background-repeat: repeat;
+  background-size: 500px 300px;
+  animation: float 20s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes nebula {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px) translateX(0px);
+  }
+  33% {
+    transform: translateY(-30px) translateX(20px);
+  }
+  66% {
+    transform: translateY(-20px) translateX(-15px);
+  }
+  100% {
+    transform: translateY(0px) translateX(0px);
   }
 }
