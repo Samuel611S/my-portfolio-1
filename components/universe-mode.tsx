@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Rocket, Volume2, VolumeX } from "lucide-react"
+import BlackHole3D from "./black-hole-3d"
 
 interface UniverseModeProps {
   isActive: boolean
@@ -120,6 +121,10 @@ export default function UniverseMode({ isActive, onToggle }: UniverseModeProps) 
             transition={{ duration: 1 }}
             className="fixed inset-0 z-[9998] pointer-events-none"
           >
+            {/* 3D Black Hole */}
+            <div className="absolute inset-0 z-0">
+              <BlackHole3D />
+            </div>
             {/* Enhanced Stars */}
             <div className="absolute inset-0">
               {[...Array(50)].map((_, i) => (
@@ -240,23 +245,6 @@ export default function UniverseMode({ isActive, onToggle }: UniverseModeProps) 
                 />
               ))}
             </div>
-
-            {/* Pulsar Effect */}
-            <motion.div
-              className="absolute top-1/2 left-1/2 w-1 h-1 bg-emerald-400 rounded-full"
-              style={{
-                transform: 'translate(-50%, -50%)',
-              }}
-              animate={{
-                scale: [1, 50, 1],
-                opacity: [1, 0, 1],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeOut",
-              }}
-            />
           </motion.div>
         )}
       </AnimatePresence>
