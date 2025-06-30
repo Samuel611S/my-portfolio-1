@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Rocket, Volume2, VolumeX } from "lucide-react"
+import { Rocket, Volume2, VolumeX, Loader2 } from "lucide-react"
 import BlackHole3D from "./black-hole-3d"
 
 interface UniverseModeProps {
@@ -10,24 +10,78 @@ interface UniverseModeProps {
   onToggle: () => void
 }
 
+// Performance optimization: detect mobile and reduce animations
+function usePerformanceMode() {
+  const [isMobile, setIsMobile] = useState(false)
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      setIsMobile(mobile)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+  
+  return isMobile
+}
+
 export default function UniverseMode({ isActive, onToggle }: UniverseModeProps) {
   const [isMuted, setIsMuted] = useState(false)
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
   const [isFading, setIsFading] = useState(false)
+  const [isAudioLoading, setIsAudioLoading] = useState(false)
+  const [audioLoaded, setAudioLoaded] = useState(false)
+  const isMobile = usePerformanceMode()
 
-  // Only create audio once
-  useEffect(() => {
-    const spaceAudio = new Audio('/space-ambient.mp3')
-    spaceAudio.loop = true
-    spaceAudio.volume = 0 // Start silent for fade in
-    spaceAudio.preload = 'auto'
-    setAudio(spaceAudio)
-
-    return () => {
-      spaceAudio.pause()
-      spaceAudio.src = ''
+  // Lazy load audio only when Universe Mode is activated
+  const loadAudio = async () => {
+    if (audioLoaded || audio) return audio
+    
+    setIsAudioLoading(true)
+    try {
+      const spaceAudio = new Audio('/space-ambient.mp3')
+      spaceAudio.loop = true
+      spaceAudio.volume = 0 // Start silent for fade in
+      spaceAudio.preload = 'none' // Don't preload
+      
+      // Wait for audio to be ready
+      await new Promise((resolve, reject) => {
+        spaceAudio.addEventListener('canplaythrough', resolve, { once: true })
+        spaceAudio.addEventListener('error', reject, { once: true })
+        spaceAudio.load() // Start loading
+      })
+      
+      setAudio(spaceAudio)
+      setAudioLoaded(true)
+      setIsAudioLoading(false)
+      return spaceAudio
+    } catch (error) {
+      console.warn('Audio failed to load:', error)
+      setIsAudioLoading(false)
+      return null
     }
-  }, [])
+  }
+
+  // Load audio when Universe Mode is activated
+  useEffect(() => {
+    if (isActive && !audioLoaded && !isAudioLoading) {
+      loadAudio()
+    }
+  }, [isActive, audioLoaded, isAudioLoading])
+
+  // Cleanup audio when component unmounts
+  useEffect(() => {
+    return () => {
+      if (audio) {
+        audio.pause()
+        audio.src = ''
+        audio.remove()
+      }
+    }
+  }, [audio])
 
   // Fade in/out helper
   const fadeVolume = (targetVolume: number, duration = 1200) => {
@@ -52,7 +106,7 @@ export default function UniverseMode({ isActive, onToggle }: UniverseModeProps) 
 
   // Play/pause and fade audio on mode change
   useEffect(() => {
-    if (!audio) return
+    if (!audio || !audioLoaded) return
     if (isActive && !isMuted) {
       audio.play().then(() => {
         fadeVolume(0.3)
@@ -64,12 +118,12 @@ export default function UniverseMode({ isActive, onToggle }: UniverseModeProps) 
       fadeVolume(0, 800)
       setTimeout(() => audio.pause(), 900)
     }
-  }, [isActive, isMuted, audio])
+  }, [isActive, isMuted, audio, audioLoaded])
 
   // Mute toggle with fade
   const toggleMute = () => {
     setIsMuted(!isMuted)
-    if (audio) {
+    if (audio && audioLoaded) {
       if (isMuted) {
         fadeVolume(0.3)
       } else {
@@ -102,11 +156,22 @@ export default function UniverseMode({ isActive, onToggle }: UniverseModeProps) 
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
             onClick={toggleMute}
-            className="fixed top-4 right-16 z-[9999] p-3 rounded-full bg-emerald-500/20 backdrop-blur-md border border-emerald-400/50 text-emerald-400 shadow-lg"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            disabled={isAudioLoading || !audioLoaded}
+            className={`fixed top-4 right-16 z-[9999] p-3 rounded-full shadow-lg transition-all duration-300 ${
+              isAudioLoading || !audioLoaded
+                ? 'bg-gray-500/20 backdrop-blur-md border border-gray-400/50 text-gray-400 cursor-not-allowed'
+                : 'bg-emerald-500/20 backdrop-blur-md border border-emerald-400/50 text-emerald-400 hover:scale-105 active:scale-95'
+            }`}
           >
-            {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
+            {isAudioLoading ? (
+              <Loader2 className="w-6 h-6 animate-spin" />
+            ) : !audioLoaded ? (
+              <VolumeX className="w-6 h-6" />
+            ) : isMuted ? (
+              <VolumeX className="w-6 h-6" />
+            ) : (
+              <Volume2 className="w-6 h-6" />
+            )}
           </motion.button>
         )}
       </AnimatePresence>
@@ -125,9 +190,10 @@ export default function UniverseMode({ isActive, onToggle }: UniverseModeProps) 
             <div className="absolute inset-0 z-0">
               <BlackHole3D />
             </div>
-            {/* Enhanced Stars */}
+            
+            {/* Enhanced Stars - Reduced count for mobile */}
             <div className="absolute inset-0">
-              {[...Array(50)].map((_, i) => (
+              {[...Array(isMobile ? 25 : 50)].map((_, i) => (
                 <motion.div
                   key={i}
                   className="absolute w-1 h-1 bg-emerald-400 rounded-full"
@@ -149,8 +215,8 @@ export default function UniverseMode({ isActive, onToggle }: UniverseModeProps) 
               ))}
             </div>
 
-            {/* Shooting Stars */}
-            {[...Array(8)].map((_, i) => (
+            {/* Shooting Stars - Reduced count for mobile */}
+            {[...Array(isMobile ? 4 : 8)].map((_, i) => (
               <motion.div
                 key={`shooting-${i}`}
                 className="absolute w-20 h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent"
@@ -170,37 +236,41 @@ export default function UniverseMode({ isActive, onToggle }: UniverseModeProps) 
               />
             ))}
 
-            {/* Nebula Clouds */}
-            <motion.div
-              className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl"
-              animate={{
-                scale: [1, 1.3, 1],
-                opacity: [0.1, 0.3, 0.1],
-                rotate: [0, 180, 360],
-              }}
-              transition={{
-                duration: 20,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-            <motion.div
-              className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-emerald-400/8 rounded-full blur-3xl"
-              animate={{
-                scale: [1.2, 1, 1.2],
-                opacity: [0.05, 0.2, 0.05],
-                rotate: [360, 180, 0],
-              }}
-              transition={{
-                duration: 25,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
+            {/* Nebula Clouds - Only show on desktop for performance */}
+            {!isMobile && (
+              <>
+                <motion.div
+                  className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl"
+                  animate={{
+                    scale: [1, 1.3, 1],
+                    opacity: [0.1, 0.3, 0.1],
+                    rotate: [0, 180, 360],
+                  }}
+                  transition={{
+                    duration: 20,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                />
+                <motion.div
+                  className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-emerald-400/8 rounded-full blur-3xl"
+                  animate={{
+                    scale: [1.2, 1, 1.2],
+                    opacity: [0.05, 0.2, 0.05],
+                    rotate: [360, 180, 0],
+                  }}
+                  transition={{
+                    duration: 25,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                />
+              </>
+            )}
 
-            {/* Asteroid Belt */}
+            {/* Asteroid Belt - Reduced count for mobile */}
             <div className="absolute inset-0">
-              {[...Array(15)].map((_, i) => (
+              {[...Array(isMobile ? 8 : 15)].map((_, i) => (
                 <motion.div
                   key={`asteroid-${i}`}
                   className="absolute w-2 h-2 bg-emerald-600/60 rounded-full"
@@ -222,9 +292,9 @@ export default function UniverseMode({ isActive, onToggle }: UniverseModeProps) 
               ))}
             </div>
 
-            {/* Cosmic Dust Particles */}
+            {/* Cosmic Dust Particles - Reduced count for mobile */}
             <div className="absolute inset-0">
-              {[...Array(30)].map((_, i) => (
+              {[...Array(isMobile ? 15 : 30)].map((_, i) => (
                 <motion.div
                   key={`dust-${i}`}
                   className="absolute w-0.5 h-0.5 bg-emerald-300/40 rounded-full"

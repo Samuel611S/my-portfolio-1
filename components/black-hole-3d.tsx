@@ -1,16 +1,33 @@
 // src/components/BlackHoleScene.tsx
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import { OrbitControls, Stars } from "@react-three/drei"
-import { useRef, useMemo } from "react"
+import { useRef, useMemo, useEffect, useState } from "react"
 import * as THREE from "three"
 
-const JET_PARTICLE_COUNT = 200
+// Performance optimization: detect mobile and reduce particles
+function usePerformanceMode() {
+  const [isMobile, setIsMobile] = useState(false)
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      setIsMobile(mobile)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+  
+  return isMobile
+}
 
 function AccretionDisk() {
   const particlesRef = useRef<THREE.Points>(null)
-
+  const isMobile = usePerformanceMode()
+  
   const { positions, colors, sizes } = useMemo(() => {
-    const count = 800
+    const count = isMobile ? 300 : 500 // Reduced for mobile
     const positions = new Float32Array(count * 3)
     const colors = new Float32Array(count * 3)
     const sizes = new Float32Array(count)
@@ -37,20 +54,22 @@ function AccretionDisk() {
       sizes[i] = 0.02 + Math.random() * 0.04
     }
 
-    return { positions, colors, sizes }
-  }, [])
+    return { positions, colors, sizes, count }
+  }, [isMobile])
 
   useFrame(() => {
     if (!particlesRef.current) return
     const pos = particlesRef.current.geometry.attributes.position.array as Float32Array
-    for (let i = 0; i < 800; i++) {
+    const count = isMobile ? 300 : 500
+    
+    for (let i = 0; i < count; i++) {
       const x = pos[i * 3]
       const z = pos[i * 3 + 2]
       const radius = Math.sqrt(x * x + z * z)
-      const angle = Math.atan2(z, x) + 0.003 / radius
+      const angle = Math.atan2(z, x) + 0.002 / radius // Slower rotation
 
-      pos[i * 3] = Math.cos(angle) * radius * 0.9993
-      pos[i * 3 + 2] = Math.sin(angle) * radius * 0.9993
+      pos[i * 3] = Math.cos(angle) * radius * 0.9995
+      pos[i * 3 + 2] = Math.sin(angle) * radius * 0.9995
 
       if (radius < 2.0) {
         const newAngle = Math.random() * Math.PI * 2
@@ -65,9 +84,9 @@ function AccretionDisk() {
   return (
     <points ref={particlesRef}>
       <bufferGeometry>
-        <bufferAttribute attach="attributes-position" array={positions} itemSize={3} count={800} args={[positions, 3]} />
-        <bufferAttribute attach="attributes-color" array={colors} itemSize={3} count={800} args={[colors, 3]} />
-        <bufferAttribute attach="attributes-size" array={sizes} itemSize={1} count={800} args={[sizes, 1]} />
+        <bufferAttribute attach="attributes-position" array={positions} itemSize={3} count={isMobile ? 300 : 500} args={[positions, 3]} />
+        <bufferAttribute attach="attributes-color" array={colors} itemSize={3} count={isMobile ? 300 : 500} args={[colors, 3]} />
+        <bufferAttribute attach="attributes-size" array={sizes} itemSize={1} count={isMobile ? 300 : 500} args={[sizes, 1]} />
       </bufferGeometry>
       <pointsMaterial
         size={0.04}
@@ -84,9 +103,10 @@ function AccretionDisk() {
 function RelativisticJets() {
   const topRef = useRef<THREE.Points>(null)
   const bottomRef = useRef<THREE.Points>(null)
+  const isMobile = usePerformanceMode()
 
   const particles = useMemo(() => {
-    const count = 300
+    const count = isMobile ? 150 : 200 // Reduced for mobile
     const positions = new Float32Array(count * 3)
     const colors = new Float32Array(count * 3)
 
@@ -110,16 +130,18 @@ function RelativisticJets() {
       ], i * 3)
     }
 
-    return { positions, colors }
-  }, [])
+    return { positions, colors, count }
+  }, [isMobile])
 
   useFrame(() => {
     [topRef, bottomRef].forEach((ref, dir) => {
       if (!ref.current) return
       const pos = ref.current.geometry.attributes.position.array as Float32Array
-      for (let i = 0; i < 300; i++) {
+      const count = isMobile ? 150 : 200
+      
+      for (let i = 0; i < count; i++) {
         // Faster, more realistic jet movement
-        pos[i * 3 + 1] += dir === 0 ? 0.08 : -0.08
+        pos[i * 3 + 1] += dir === 0 ? 0.06 : -0.06 // Slower movement
         
         // Reset particles when they go too far
         if (pos[i * 3 + 1] > 10 || pos[i * 3 + 1] < -10) {
@@ -134,8 +156,8 @@ function RelativisticJets() {
     <>
       <points ref={topRef}>
         <bufferGeometry>
-          <bufferAttribute attach="attributes-position" array={particles.positions} itemSize={3} count={300} args={[particles.positions, 3]} />
-          <bufferAttribute attach="attributes-color" array={particles.colors} itemSize={3} count={300} args={[particles.colors, 3]} />
+          <bufferAttribute attach="attributes-position" array={particles.positions} itemSize={3} count={particles.count} args={[particles.positions, 3]} />
+          <bufferAttribute attach="attributes-color" array={particles.colors} itemSize={3} count={particles.count} args={[particles.colors, 3]} />
         </bufferGeometry>
         <pointsMaterial 
           size={0.06} 
@@ -148,8 +170,8 @@ function RelativisticJets() {
       </points>
       <points ref={bottomRef}>
         <bufferGeometry>
-          <bufferAttribute attach="attributes-position" array={particles.positions.slice()} itemSize={3} count={300} args={[particles.positions.slice(), 3]} />
-          <bufferAttribute attach="attributes-color" array={particles.colors.slice()} itemSize={3} count={300} args={[particles.colors.slice(), 3]} />
+          <bufferAttribute attach="attributes-position" array={particles.positions.slice()} itemSize={3} count={particles.count} args={[particles.positions.slice(), 3]} />
+          <bufferAttribute attach="attributes-color" array={particles.colors.slice()} itemSize={3} count={particles.count} args={[particles.colors.slice(), 3]} />
         </bufferGeometry>
         <pointsMaterial 
           size={0.06} 
@@ -169,12 +191,12 @@ function EventHorizon() {
   useFrame(({ clock }) => {
     if (ref.current) {
       const t = clock.getElapsedTime()
-      ref.current.scale.setScalar(1 + Math.sin(t * 0.3) * 0.04)
+      ref.current.scale.setScalar(1 + Math.sin(t * 0.2) * 0.03) // Slower pulsing
     }
   })
   return (
     <mesh ref={ref}>
-      <sphereGeometry args={[1.5, 64, 64]} />
+      <sphereGeometry args={[1.5, 32, 32]} /> {/* Reduced geometry complexity */}
       <meshBasicMaterial color="black" transparent opacity={0.97} />
     </mesh>
   )
@@ -185,12 +207,12 @@ function GravitationalLensing() {
   useFrame(({ clock }) => {
     if (ref.current) {
       const t = clock.getElapsedTime()
-      ref.current.rotation.z = t * 0.05
+      ref.current.rotation.z = t * 0.03 // Slower rotation
     }
   })
   return (
     <mesh ref={ref} rotation={[Math.PI / 2, 0, 0]}>
-      <ringGeometry args={[1.7, 2.0, 64]} />
+      <ringGeometry args={[1.7, 2.0, 32]} /> {/* Reduced geometry complexity */}
       <meshBasicMaterial
         color="#00ffff"
         transparent
@@ -203,10 +225,10 @@ function GravitationalLensing() {
 }
 
 function ProceduralNebula() {
-  const pointsRef = useRef<THREE.Points>(null)
-
+  const isMobile = usePerformanceMode()
+  
   const { positions, colors } = useMemo(() => {
-    const count = 1000
+    const count = isMobile ? 500 : 800 // Reduced for mobile
     const positions = new Float32Array(count * 3)
     const colors = new Float32Array(count * 3)
 
@@ -228,14 +250,14 @@ function ProceduralNebula() {
       ], i * 3)
     }
 
-    return { positions, colors }
-  }, [])
+    return { positions, colors, count }
+  }, [isMobile])
 
   return (
-    <points ref={pointsRef}>
+    <points>
       <bufferGeometry>
-        <bufferAttribute attach="attributes-position" array={positions} itemSize={3} count={1000} args={[positions, 3]} />
-        <bufferAttribute attach="attributes-color" array={colors} itemSize={3} count={1000} args={[colors, 3]} />
+        <bufferAttribute attach="attributes-position" array={positions} itemSize={3} count={isMobile ? 500 : 800} args={[positions, 3]} />
+        <bufferAttribute attach="attributes-color" array={colors} itemSize={3} count={isMobile ? 500 : 800} args={[colors, 3]} />
       </bufferGeometry>
       <pointsMaterial
         size={2.5}
@@ -252,8 +274,10 @@ function ProceduralNebula() {
 
 function DynamicCamera() {
   const { camera } = useThree()
+  const isMobile = usePerformanceMode()
+  
   useFrame(({ clock }) => {
-    const t = clock.getElapsedTime() * 0.08
+    const t = clock.getElapsedTime() * (isMobile ? 0.04 : 0.08) // Slower on mobile
     const r = 11
     camera.position.set(Math.cos(t) * r, 6 + Math.sin(t * 0.3) * 2, Math.sin(t) * r)
     camera.lookAt(0, 0, 0)
@@ -262,12 +286,31 @@ function DynamicCamera() {
 }
 
 export default function BlackHoleScene() {
+  const isMobile = usePerformanceMode()
+  
   return (
     <div style={{ position: "absolute", width: "100vw", height: "100vh" }}>
-      <Canvas camera={{ position: [10, 6, 0], fov: 50 }}>
+      <Canvas 
+        camera={{ position: [10, 6, 0], fov: 50 }}
+        gl={{ 
+          antialias: !isMobile, // Disable antialiasing on mobile
+          powerPreference: "high-performance",
+          alpha: false,
+          stencil: false,
+          depth: true
+        }}
+        dpr={isMobile ? 1 : window.devicePixelRatio} // Lower resolution on mobile
+      >
         <ambientLight intensity={0.1} />
         <pointLight position={[0, 0, 0]} intensity={3} color="#ffffff" />
-        <Stars radius={200} depth={60} count={2500} factor={4} fade speed={0.5} />
+        <Stars 
+          radius={200} 
+          depth={60} 
+          count={isMobile ? 1500 : 2500} // Fewer stars on mobile
+          factor={4} 
+          fade 
+          speed={0.5} 
+        />
 
         <ProceduralNebula />
         <GravitationalLensing />
@@ -276,7 +319,12 @@ export default function BlackHoleScene() {
         <RelativisticJets />
         <DynamicCamera />
 
-        <OrbitControls enableZoom enableRotate enablePan={false} autoRotateSpeed={0.2} />
+        <OrbitControls 
+          enableZoom={!isMobile} 
+          enableRotate={!isMobile} 
+          enablePan={false} 
+          autoRotateSpeed={0.2} 
+        />
       </Canvas>
     </div>
   )
