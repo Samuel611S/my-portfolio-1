@@ -31,7 +31,7 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
         
         {!imageError ? (
           <Image
-            src={image || "/placeholder.svg?height=224&width=400"}
+            src={image || "/logo.png"}
             alt={title}
             fill
             className={cn(

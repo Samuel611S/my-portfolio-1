@@ -41,7 +41,7 @@ export const projects: Project[] = [
     title: "Glasses Store Data Entry System",
     description:
       "A Python-based data entry application for a local glasses store to streamline their inventory management.",
-    image: "/project3.jpg?height=224&width=400",
+    image: "/sanmarkapp.jpg",
     technologies: ["Python", "Tkinter", "SQLite"],
     demoUrl: "https://drive.google.com/file/d/1WsjbIB0P5RpNjzJc5uPEGVvJA0hXhw-r/view?usp=sharing",
     sourceUrl: "https://github.com/Samuel611S/san-mark-app.git",
@@ -51,7 +51,7 @@ export const projects: Project[] = [
     title: "Syncadia",
     description:
       "A task management app designed for both companies and personal use to organize, prioritize, and track tasks efficiently.",
-    image: "/project4.jpg?height=224&width=400",
+    image: "/syncadia.jpg",
     technologies: ["Flutter", "Firebase", "Dart"],
     demoUrl: "https://drive.google.com/file/d/1vE0K-_xidfC02uncOUjYK2rIvdFmBRD1/view?usp=sharing",
     sourceUrl: "https://github.com/Samuel611S/syncadia-sam.git",
@@ -61,7 +61,7 @@ export const projects: Project[] = [
     title: "Image Processing Application",
     description:
       "A web-based image processing app that allows users to apply real-time filters to live video feeds and capture snapshots.",
-    image: "/project5.jpg?height=224&width=400",
+    image: "/imageprocessingapp.jpg",
     technologies: ["JavaScript", "HTML/CSS", "Canvas API"],
     sourceUrl: "https://github.com/Samuel611S/graphics-final.git",
   },
@@ -70,7 +70,7 @@ export const projects: Project[] = [
     title: "Matbakhna AI - Recipe Generator",
     description:
       "An AI-powered recipe recommendation platform that transforms available ingredients into personalized meal suggestions using Google's Gemini API.",
-    image: "/project0.jpg?height=224&width=400",
+    image: "/matbakhna.jpg",
     technologies: ["JavaScript", "React", "Google Gemini API"],
     demoUrl: "https://matbakhna.netlify.app/",
     sourceUrl: "https://github.com/Samuel611S/matbakhna.git",
@@ -80,7 +80,7 @@ export const projects: Project[] = [
     title: "Game Checker.io",
     description:
       "A Python desktop app that lets you search for PC game prices using live data from the IsThereAnyDeal API with real-time currency conversion.",
-    image: "/project1.jpg?height=224&width=400",
+    image: "/gametracker.jpg",
     technologies: ["Python", "Tkinter", "API Integration"],
     demoUrl: "https://basardav.itch.io/game-checker",
     sourceUrl: "https://github.com/Samuel611S/game_checker.io.git",
@@ -90,7 +90,7 @@ export const projects: Project[] = [
     title: "StreamSaver",
     description:
       "A desktop app that lets you download YouTube videos or audio in just a few clicks with quality selection and download progress tracking.",
-    image: "/project2.jpg?height=224&width=400",
+    image: "/streamsaver.jpg",
     technologies: ["Python", "PyTube", "Tkinter"],
     demoUrl: "https://basardav.itch.io/stream-saver",
     sourceUrl: "https://github.com/Samuel611S/stream-saver",
