@@ -54,6 +54,14 @@ const testimonials: Testimonial[] = [
     content: "He was amazing and knowledgeable and very quick. also was flexible with my revisions. Will defintely hire him again.",
     rating: 5,
   },
+  {
+    id: "6",
+    name: "jesusquesillo",
+    role: "Client",
+    company: "Colombia",
+    content: "Gracias hermano, por toda la amabilidad y por la lealtad que es algo que mucho no tiene, la palabra es una sola y cuando hacemos las cosas bien siempre el mundo irá a nuestro favor 🙏",
+    rating: 5,
+  },
 ]
 
 export default function Testimonials() {

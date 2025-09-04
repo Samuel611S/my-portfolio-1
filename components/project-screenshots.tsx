@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react"
+import { useReducedMotion } from "framer-motion"
 
 interface Screenshot {
   id: string
@@ -38,6 +39,7 @@ const screenshots: Screenshot[] = [
 
 export default function ProjectScreenshots() {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const prefersReducedMotion = useReducedMotion()
 
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev + 1) % screenshots.length)
@@ -46,6 +48,9 @@ export default function ProjectScreenshots() {
   const prevSlide = () => {
     setCurrentIndex((prev) => (prev - 1 + screenshots.length) % screenshots.length)
   }
+
+  // Animation variants that respect reduced motion
+  const transition = prefersReducedMotion ? { duration: 0 } : { duration: 0.4, ease: "easeOut" }
 
   return (
     <section id="featured-work" className="py-24 relative">
@@ -102,13 +107,15 @@ export default function ProjectScreenshots() {
             {/* Navigation Buttons */}
             <button
               onClick={prevSlide}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-gray-900/80 hover:bg-gray-800 p-2 rounded-full transition-colors z-30"
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-gray-900/80 hover:bg-gray-800 p-2 rounded-full transition-colors z-30 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-black"
+              aria-label="Previous screenshot"
             >
               <ChevronLeft className="h-6 w-6 text-white" />
             </button>
             <button
               onClick={nextSlide}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-gray-900/80 hover:bg-gray-800 p-2 rounded-full transition-colors z-30"
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-gray-900/80 hover:bg-gray-800 p-2 rounded-full transition-colors z-30 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-black"
+              aria-label="Next screenshot"
             >
               <ChevronRight className="h-6 w-6 text-white" />
             </button>
@@ -120,9 +127,10 @@ export default function ProjectScreenshots() {
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
-                className={`w-3 h-3 rounded-full transition-colors ${
+                className={`w-3 h-3 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-black ${
                   index === currentIndex ? 'bg-emerald-500' : 'bg-gray-600'
                 }`}
+                aria-label={`Go to screenshot ${index + 1}`}
               />
             ))}
           </div>

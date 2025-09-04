@@ -10,18 +10,33 @@ import ProjectCard from "@/components/project-card"
 import Testimonials from "@/components/testimonials"
 import ProjectScreenshots from "@/components/project-screenshots"
 import { projects } from "@/lib/projects"
-import { motion } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 
 export default function Home() {
+  const prefersReducedMotion = useReducedMotion()
+  
+  // Animation variants that respect reduced motion
+  const fadeInUp = {
+    initial: prefersReducedMotion ? {} : { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: prefersReducedMotion ? { duration: 0 } : { duration: 0.6 }
+  }
+  
+  const fadeInUpDelay = {
+    initial: prefersReducedMotion ? {} : { opacity: 0, y: 30 },
+    animate: { opacity: 1, y: 0 },
+    transition: prefersReducedMotion ? { duration: 0 } : { duration: 0.6 }
+  }
+
   return (
     <div className="min-h-screen text-gray-200 relative bg-transparent">
-      {/* Hero Section */}
-      <section id="hero" className="relative overflow-hidden animated-section">
+      {/* Main Content */}
+      <main id="main-content">
+        {/* Hero Section */}
+        <section id="hero" className="relative overflow-hidden animated-section">
         <div className="container relative z-10 mx-auto px-4 py-32 md:py-40">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            {...fadeInUp}
             className="max-w-4xl"
           >
             <h1 className="mb-6 text-5xl font-bold leading-tight md:text-6xl lg:text-7xl">
@@ -75,9 +90,9 @@ export default function Home() {
       <motion.section
         id="about"
         className="py-24 bg-transparent"
-        initial={{ opacity: 0, y: 30 }}
+        initial={prefersReducedMotion ? {} : { opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6 }}
         viewport={{ once: true, amount: 0.3 }}
       >
         <div className="container mx-auto px-4">
@@ -282,13 +297,20 @@ export default function Home() {
           </div>
         </div>
       </section>
+      </main>
     </div>
   )
 }
 
 function SkillCard({ icon, title, proficiency }: { icon: string; title: string; proficiency: number }) {
+  const prefersReducedMotion = useReducedMotion()
+  
   return (
-    <div className="group flex flex-col items-center rounded-lg border border-gray-800 bg-gray-900/50 p-6 text-center transition-all duration-300 hover:border-emerald-900 hover:bg-gray-800 hover:scale-105 cursor-pointer">
+    <div 
+      className={`group flex flex-col items-center rounded-lg border border-gray-800 bg-gray-900/50 p-6 text-center transition-all duration-300 hover:border-emerald-900 hover:bg-gray-800 cursor-pointer ${
+        prefersReducedMotion ? '' : 'hover:scale-105'
+      }`}
+    >
       <span className="mb-4 text-4xl">{icon}</span>
       <h3 className="text-lg font-medium text-white group-hover:text-emerald-400 mb-2">{title}</h3>
       
@@ -306,15 +328,21 @@ function SkillCard({ icon, title, proficiency }: { icon: string; title: string; 
 }
 
 function SocialLink({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
+  const prefersReducedMotion = useReducedMotion()
+  
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex items-center gap-2 rounded-lg bg-muted/50 px-4 py-2 text-muted-foreground transition-all duration-300 hover:bg-emerald-900/50 hover:text-emerald-400 hover:scale-105"
+      className={`group flex items-center gap-2 rounded-lg bg-muted/50 px-4 py-2 text-muted-foreground transition-all duration-300 hover:bg-emerald-900/50 hover:text-emerald-400 ${
+        prefersReducedMotion ? '' : 'hover:scale-105'
+      }`}
       aria-label={label}
     >
-      <span className="transition-transform duration-300 group-hover:scale-110">{icon}</span>
+      <span className={`transition-transform duration-300 ${prefersReducedMotion ? '' : 'group-hover:scale-110'}`}>
+        {icon}
+      </span>
       <span className="font-medium">{label}</span>
     </a>
   )

@@ -1,9 +1,21 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Rocket, Volume2, VolumeX, Loader2 } from "lucide-react"
-import BlackHole3D from "./black-hole-3d"
+import dynamic from "next/dynamic"
+
+// Dynamically import BlackHole3D with SSR disabled
+const BlackHole3D = dynamic(() => import("./black-hole-3d"), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0 flex items-center justify-center">
+      <div className="w-16 h-16 border-4 border-emerald-500/20 rounded-full">
+        <div className="w-full h-full border-4 border-transparent border-t-emerald-500 rounded-full animate-spin"></div>
+      </div>
+    </div>
+  ),
+})
 
 interface UniverseModeProps {
   isActive: boolean
@@ -34,6 +46,8 @@ export default function UniverseMode({ isActive, onToggle }: UniverseModeProps) 
   const [isFading, setIsFading] = useState(false)
   const [isAudioLoading, setIsAudioLoading] = useState(false)
   const [audioLoaded, setAudioLoaded] = useState(false)
+  const [shouldLoadBlackHole, setShouldLoadBlackHole] = useState(false)
+  const universeRef = useRef<HTMLDivElement>(null)
   const isMobile = usePerformanceMode()
 
   // Lazy load audio only when Universe Mode is activated
@@ -71,6 +85,34 @@ export default function UniverseMode({ isActive, onToggle }: UniverseModeProps) 
       loadAudio()
     }
   }, [isActive, audioLoaded, isAudioLoading])
+
+  // Intersection Observer to load BlackHole only when in view
+  useEffect(() => {
+    if (!isActive || !universeRef.current) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShouldLoadBlackHole(true)
+            observer.disconnect() // Only load once
+          }
+        })
+      },
+      { threshold: 0.1 } // Load when 10% visible
+    )
+
+    observer.observe(universeRef.current)
+
+    return () => observer.disconnect()
+  }, [isActive])
+
+  // Reset shouldLoadBlackHole when universe mode is deactivated
+  useEffect(() => {
+    if (!isActive) {
+      setShouldLoadBlackHole(false)
+    }
+  }, [isActive])
 
   // Cleanup audio when component unmounts
   useEffect(() => {
@@ -186,9 +228,9 @@ export default function UniverseMode({ isActive, onToggle }: UniverseModeProps) 
             transition={{ duration: 1 }}
             className="fixed inset-0 z-[9998] pointer-events-none"
           >
-            {/* 3D Black Hole */}
-            <div className="absolute inset-0 z-0">
-              <BlackHole3D />
+            {/* 3D Black Hole - Only load when in view */}
+            <div ref={universeRef} className="absolute inset-0 z-0">
+              {shouldLoadBlackHole && <BlackHole3D />}
             </div>
             
             {/* Enhanced Stars - Reduced count for mobile */}
