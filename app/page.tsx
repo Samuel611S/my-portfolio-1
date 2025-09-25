@@ -237,6 +237,17 @@ export default function Home() {
               </div>
             ))}
           </div>
+          
+          {/* Debug: Show project count and names */}
+          <div className="mt-8 p-4 bg-gray-800 rounded-lg">
+            <h3 className="text-emerald-400 mb-2">Debug Info:</h3>
+            <p className="text-white">Total Projects: {projects.length}</p>
+            <div className="text-sm text-gray-300">
+              {projects.map((p, i) => (
+                <div key={i}>{i + 1}. {p.title} (ID: {p.id})</div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
