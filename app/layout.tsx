@@ -9,7 +9,7 @@ import ClientLayout from "@/components/client-layout"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://your-domain.com"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://my-portfolio-1.vercel.app"),
   title: { default: "Samuel — Frontend Developer", template: "%s | Samuel" },
   description: "I design & build fast, accessible sites with Next.js, React, and Tailwind.",
   alternates: { canonical: "/" },
@@ -40,7 +40,7 @@ const personSchema = {
   "@context": "https://schema.org",
   "@type": "Person",
   "name": "Samuel Sameh",
-  "url": process.env.NEXT_PUBLIC_SITE_URL ?? "https://your-domain.com",
+  "url": process.env.NEXT_PUBLIC_SITE_URL ?? "https://my-portfolio-1.vercel.app",
   "jobTitle": "Full-Stack Developer & Computer Science Student",
   "alumniOf": {
     "@type": "Organization",
@@ -78,7 +78,7 @@ const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "Samuel Sameh Portfolio",
-  "url": process.env.NEXT_PUBLIC_SITE_URL ?? "https://your-domain.com",
+  "url": process.env.NEXT_PUBLIC_SITE_URL ?? "https://my-portfolio-1.vercel.app",
   "description": "Portfolio website showcasing Samuel Sameh's work as a Full-Stack Developer and Computer Science Student",
   "author": {
     "@type": "Person",
