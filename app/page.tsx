@@ -237,9 +237,8 @@ export default function Home() {
               </div>
             ))}
           </div>
-          
+        </div>
       </section>
-
       {/* Featured Client Work Screenshots */}
       <ProjectScreenshots />
 
